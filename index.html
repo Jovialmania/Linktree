@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Treelink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --container-bg: white;
+            --text-color: #333;
+            --secondary-text: #777;
+            --link-bg: #007bff;
+            --link-hover: #0056b3;
+            --container-width: min(90%, 400px);
+            --profile-width: min(85%, 350px);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --container-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --secondary-text: #cccccc;
+            --link-bg: #0066cc;
+            --link-hover: #0099ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 10px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            width: var(--container-width);
+            padding: clamp(15px, 5vw, 30px);
+            background: var(--container-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            animation: slideUp 1s forwards;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: clamp(10px, 3vw, 20px);
+            right: clamp(10px, 3vw, 20px);
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: clamp(20px, 4vw, 24px);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            padding: 10px;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg);
+        }
+
+        .profile-box {
+            width: var(--profile-width);
+            aspect-ratio: 16/9;
+            border-radius: clamp(15px, 4vw, 25px);
+            overflow: hidden;
+            margin: 0 auto 15px;
+            border: 3px solid #ddd;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-box:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.3s ease;
+        }
+
+        .profile-box:hover::before {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-box:hover .profile-image {
+            transform: scale(1.1);
+        }
+
+        h1 {
+            font-size: clamp(20px, 5vw, 24px);
+            margin: 5px 0;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        p {
+            font-size: clamp(14px, 4vw, 16px);
+            color: var(--secondary-text);
+            transition: color 0.3s ease;
+        }
+
+        .bio {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            color: var(--secondary-text);
+            font-size: clamp(14px, 3.5vw, 16px);
+            padding: 0 10px;
+        }
+
+        .bio.expanded {
+            max-height: 200px;
+            margin: 10px 0;
+        }
+
+        .bio-toggle {
+            background: none;
+            border: none;
+            color: var(--link-bg);
+            cursor: pointer;
+            padding: 5px;
+            margin: 10px 0;
+            font-size: clamp(12px, 3.5vw, 14px);
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 2vw, 10px);
+            margin-top: clamp(15px, 4vw, 20px);
+            width: 100%;
+        }
+
+        .link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(10px, 3vw, 12px);
+            background: var(--link-bg);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            position: relative;
+            overflow: hidden;
+            font-size: clamp(14px, 4vw, 16px);
+        }
+
+        .link:hover {
+            background: var(--link-hover);
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .link:active {
+            transform: scale(0.98);
+        }
+
+        .link i {
+            margin-right: clamp(8px, 2vw, 10px);
+            font-size: clamp(16px, 4vw, 18px);
+        }
+
+        .link::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+        }
+
+        .link:active::after {
+            transform: translate(-50%, -50%) scale(2);
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Contact form styles */
+        .contact-form {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .contact-form.visible {
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid var(--secondary-text);
+            border-radius: 5px;
+            background: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        .form-input:focus {
+            outline: 2px solid var(--link-bg);
+        }
+
+        .submit-button {
+            background: var(--link-bg);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            background: var(--link-hover);
+        }
+
+
+        @media (max-width: 280px) {
+            .link {
+                font-size: 12px;
+            }
+            .link i {
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+            p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
+    <div class="container">
+        <div class="profile-box">
+            <img src="profile.jpg" alt="Your Design" class="profile-image loading">
+        </div>
+        <h1>Your Name</h1>
+        <p>@yourhandle</p>
+        <button class="bio-toggle">Read More</button>
+        <div class="bio">
+            Hi there! 👋 I'm a creative professional passionate about design and technology. 
+            I love creating beautiful and functional experiences that make a difference.
+            Feel free to connect with me on any of the platforms below!
+        </div>
+        <div class="links">
+            <a href="#" class="link"><i class="fab fa-instagram"></i>Instagram</a>
+            <a href="#" class="link"><i class="fab fa-twitter"></i>Twitter</a>
+            <a href="#" class="link"><i class="fab fa-linkedin"></i>LinkedIn</a>
+            <a href="#" class="link"><i class="fas fa-globe"></i>Website</a>
+        </div>
+
+        <!-- Contact Form -->
+        <button class="bio-toggle" id="contact-toggle" aria-expanded="false">Contact Me</button>
+        <div class="contact-form" id="contact-form">
+            <form id="contact" onsubmit="return handleSubmit(event)">
+                <input type="text" class="form-input" placeholder="Your Name" required aria-label="Your Name">
+                <input type="email" class="form-input" placeholder="Your Email" required aria-label="Your Email">
+                <textarea class="form-input" placeholder="Your Message" rows="4" required aria-label="Your Message"></textarea>
+                <button type="submit" class="submit-button">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Analytics tracking
+        function trackLinkClick(platform) {
+            // Simple analytics tracking
+            console.log(`Link clicked: ${platform}`);
+            // Here you could add real analytics code
+            // Example: gtag('event', 'click', { 'platform': platform });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize analytics tracking for links
+            document.querySelectorAll('.link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const platform = this.textContent.trim();
+                    trackLinkClick(platform);
+                });
+            });
+
+            // Link animations
+            const links = document.querySelectorAll(".link");
+            links.forEach((link, index) => {
+                link.style.opacity = "0";
+                setTimeout(() => {
+                    link.style.transition = "opacity 0.5s ease-in-out";
+                    link.style.opacity = "1";
+                }, 300 * index);
+            });
+
+            // Dark mode toggle
+            const themeToggle = document.querySelector(".theme-toggle");
+            const themeIcon = themeToggle.querySelector("i");
+            
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.dataset.theme = savedTheme;
+            themeIcon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+            
+            themeToggle.addEventListener("click", () => {
+                const newTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+                document.body.dataset.theme = newTheme;
+                themeIcon.className = newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // Bio and Contact Form toggles
+            const bioToggle = document.querySelector(".bio-toggle");
+            const bio = document.querySelector(".bio");
+            const contactToggle = document.getElementById("contact-toggle");
+            const contactForm = document.getElementById("contact-form");
+            
+            bioToggle.addEventListener("click", () => {
+                bio.classList.toggle("expanded");
+                bioToggle.textContent = bio.classList.contains("expanded") ? "Read Less" : "Read More";
+                bioToggle.setAttribute('aria-expanded', bio.classList.contains("expanded"));
+            });
+
+            contactToggle.addEventListener("click", () => {
+                contactForm.classList.toggle("visible");
+                contactToggle.textContent = contactForm.classList.contains("visible") ? "Hide Contact" : "Contact Me";
+                contactToggle.setAttribute('aria-expanded', contactForm.classList.contains("visible"));
+            });
+
+
+            // Remove loading state from image after load
+            const profileImage = document.querySelector(".profile-image");
+            profileImage.addEventListener("load", () => {
+                profileImage.classList.remove("loading");
+            });
+
+            // Enhanced keyboard navigation
+            const focusableElements = document.querySelectorAll('button, a, input, textarea');
+            focusableElements.forEach(element => {
+                element.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        element.click();
+                    }
+                });
+            });
+
+            // Contact form submission
+            window.handleSubmit = function(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+                
+                // Here you would typically send the data to a server
+                console.log('Form submitted:', data);
+                
+                // Show success message
+                alert('Thank you for your message! We will get back to you soon.');
+                event.target.reset();
+                contactForm.classList.remove('visible');
+                contactToggle.textContent = 'Contact Me';
+                contactToggle.setAttribute('aria-expanded', 'false');
+                
+                return false;
+            };
+
+            // Add click animation to links with enhanced accessibility
+            links.forEach(link => {
+                link.addEventListener("click", function(e) {
+                    if (e.type === 'click' || (e.type === 'keydown' && (e.key === 'Enter' || e.key === ' '))) {
+                        const rect = this.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        const ripple = document.createElement("div");
+                        ripple.style.left = `${x}px`;
+                        ripple.style.top = `${y}px`;
+                        ripple.setAttribute('role', 'presentation');
+                        
+                        this.appendChild(ripple);
+                        
+                        setTimeout(() => ripple.remove(), 1000);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
